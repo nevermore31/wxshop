@@ -1,7 +1,7 @@
 from app import create_app,db
 from flask_script import Manager,Server,Shell
 from flask_migrate import Migrate,MigrateCommand
-from app.main.model import SuperAdmin,Subaccount
+from app.main.model import GoodsAttributeValue,GoodsAttributeName,Goods,GoodsIteamSku,Subaccount,SuperAdmin
 
 
 app = create_app('TestingConfig')
@@ -11,7 +11,11 @@ migrate = Migrate(app,db)
 
 def make_shell():
     '''后期添加自己创立的数据库'''
-    return dict(app=app,db=db,SuperAdmin=SuperAdmin,Subaccount=Subaccount)
+    return dict(app=app,db=db,SuperAdmin=SuperAdmin,Subaccount=Subaccount,
+                GoodsAttributeValue=GoodsAttributeValue,
+                GoodsAttributeName=GoodsAttributeName,
+                Goods=Goods,
+                GoodsIteamSku=GoodsIteamSku)
 
 manage.add_command('shell',Shell(make_context=make_shell))
 manage.add_command('runserver',Server(host='127.0.0.1',port='8888'))
