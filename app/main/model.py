@@ -1,47 +1,26 @@
 from app import db
-
+from werkzeug.security import check_password_hash, generate_password_hash
 
 class SuperAdmin(db.Model):
     __tablename__ = 'superadmin'
 
     id = db.Column(db.Integer,primary_key=True)
     adminname = db.Column(db.String(64),unique=True)
-    password = db.Column(db.String(64))
+    passwords = db.Column(db.String(64),nullable=False)
+    _password_hash = db.Column(db.String(128),nullable=False)
 
-    subaccount = db.relationship('Subaccount',backref='superadmin',lazy='dynamic')
 
-class Subaccount(db.Model):
-    __tablename__ = 'subaccount'
+    def __repr__(self):
+        return '用户名称 : {}'.format(self.adminname)
 
-    id = db.Column(db.Integer,primary_key=True)
-    subaccountname = db.Column(db.String(64),unique=True)
-    password = db.Column(db.String(64))
+    @property
+    def password(self):
+        return self._password_hash
 
-    subaccount_id = db.Column(db.String(64),db.ForeignKey('superadmin.id'))
+    @password.setter
+    def password(self,password):
+        self._password_hash = generate_password_hash(password)
 
-class Goods(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    goodsname = db.Column(db.String(120),unique=True)
-    goodsattrname = db.relationship('GoodsAttributeName',backref='goods',lazy='dynamic')
-    goodsiteamsku = db.relationship('GoodsIteamSku',backref='goods',lazy='dynamic')
+    def check_password_hash(self,password):
+        return check_password_hash(self.password,password)
 
-class GoodsAttributeName(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    attrname = db.Column(db.String(120),unique=True)
-    goodsattrvalue = db.relationship('GoodsAttributeValue',backref = 'goodsattributename',lazy='dynamic')
-    goods_id = db.Column(db.String(64),db.ForeignKey('goods.id'))
-
-class GoodsAttributeValue(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    '''属性编码'''
-    symbol = db.Column(db.Integer,unique=True)
-    attrvalue = db.Column(db.String(120),unique=True)
-    goods_id = db.Column(db.String(64),db.ForeignKey('goodsattributename.id'))
-
-class GoodsIteamSku(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    goods_id = db.Column(db.String(64),db.ForeignKey('goods.id'))
-    '''组成方式'''
-    attr_name = db.Column(db.Integer)
-    price = db.Column(db.Float)
-    stock = db.Column(db.Integer,default=0)

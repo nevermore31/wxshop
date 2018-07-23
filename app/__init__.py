@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_admin import Admin
 from flask_babelex import Babel
-
+import os
 
 
 db = SQLAlchemy()
@@ -26,3 +26,4 @@ def create_app(config_name):
     app.register_blueprint(main_blueprint)
 
     return app
+
