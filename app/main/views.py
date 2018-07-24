@@ -1,36 +1,29 @@
 # -*- coding:utf-8 -*-
-from flask import Flask, request, make_response
-from . import main_Blueprint
-from app import db,admins
+from flask import request
 from flask_admin.contrib.sqla import ModelView
-from .model import SuperAdmin
-from flask_admin import BaseView,expose
+from .model import Admin_base
+from flask_restful import Resource
+from flask_login import login_user,current_user,login_required
+
+class Test(Resource):
+    def get(self):
+        return {'msg':'APP START SUEECEES~!'}
 
 
-
-@main_Blueprint.route('/')
-def test():
-    return 'APP START SUEECEES~!'
-
-@main_Blueprint.route('/login',methods = ['POST'])
-def login():
-    if request.method == 'POST':
-        user = request.form.get('username')
-        passwords = request.form.get('passwords')
-
-        query = SuperAdmin.query.filter_by(adminname=user).first()
-        if query is not None and query.check_password_hash(passwords):
-            return 'success'
-        else: return 'flase'
+class Login(Resource):
+    def post(self):
+        if request.method == 'POST':
+            user = request.form.get('username')
+            passwords = request.form.get('passwords')
+            query = Admin_base.query.filter_by(login_name=user).first()
+            if query is not None and query.check_password_hash(passwords):
+                login_user(query,remember=True)
+                return {'Role':query.role}
+            else: return {'Role':'账号或密码不正确,请检查在登录'}
 
 
+@login_required
+class Current_user(Resource):
+    def get(self):
+        pass
 
-
-
-class AdminView(BaseView):
-    @expose('/')
-    def index(self):
-        return self.render('/home/cqc/FLASK_ALL/wxshop/app/templates/index.html')
-
-# admins.add_view(ModelView(SuperAdmin,db.session,name='商品'))
-# admins.add_view(ModelView(Subaccount,db.session,name='商品属性名称'))
